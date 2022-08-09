@@ -1,7 +1,8 @@
-import { Listbox, RadioGroup } from "@headlessui/react";
+import { RadioGroup } from "@headlessui/react";
 import type { NextPage } from "next";
-import { CaretDown, Pen, Trash } from "phosphor-react";
+import {  Pen, Trash } from "phosphor-react";
 import { useState } from "react";
+import FormBudget from "../components/FormBudget";
 
 const onSubmit = () => {
   console.log("submitou");
@@ -16,63 +17,11 @@ const Home: NextPage = () => {
     <main className="min-w-full min-h-full
      md:grid md:grid-cols-3">
       <div className="h-full w-full py-4 md:py-0 flex flex-col items-center justify-center md:justify-start md:border-r border-zinc-300 dark:border-zinc-700">
-        <p className="text-teal-700 text-4xl font-bold uppercase md:my-8 my-4">
-          Monthly budget
+        <p className="text-teal-700 text-4xl font-bold md:my-8 my-4">
+          Monthly Entries
         </p>
         <div className="w-full px-8 max-w-md">
-          <form onSubmit={onSubmit} className="">
-            <div className="form-control">
-              <label htmlFor="description">Description:</label>
-              <input placeholder="ex: john doe" />
-              <span></span>
-            </div>
-            <div className="form-control">
-              <label>Value:</label>
-              <input placeholder="ex: john doe" />
-              <span></span>
-            </div>
-            <div className="form-control">
-              <label htmlFor="date">Date:</label>
-              <input
-                id="date"
-                type="date"
-                min={`2022-07-01`}
-                max={`2022-07-31`}
-                placeholder="ex: john doe"
-              />
-              <span></span>
-            </div>
-            <div className="form-control">
-              <RadioGroup className="w-full" value={bool} onChange={setBool}>
-                <RadioGroup.Label>Choose one:</RadioGroup.Label>
-                <div className="mt-2 gap-2 w-full flex">
-                  <RadioGroup.Option
-                    value={true}
-                    className={({ active, checked }) =>
-                      `${active && "ring-2 ring-teal-700"}
-                  ${checked && " ring-2 ring-teal-700"}
-                    flex justify-center cursor-pointer rounded-lg p-2 shadow-md focus:outline-none flex-1 `
-                    }
-                  >
-                    <span>Revenue</span>
-                  </RadioGroup.Option>
-                  <RadioGroup.Option
-                    value={false}
-                    className={({ active, checked }) =>
-                      `${active && "ring-2 ring-teal-700"}
-                  ${checked && " ring-2 ring-teal-700"}
-                    flex justify-center cursor-pointer rounded-lg p-2 shadow-md focus:outline-none flex-1`
-                    }
-                  >
-                    <span>Exchange</span>
-                  </RadioGroup.Option>
-                </div>
-              </RadioGroup>
-            </div>
-            <button className="w-full md:mt-8 font-semibold text-xl px-4border-0 rounded-lg bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase mt-4 py-6 text-zinc-100">
-              register
-            </button>
-          </form>
+         <FormBudget/>
         </div>
       </div>
       <div className="col-span-2 flex flex-col">     
