@@ -7,15 +7,16 @@ const onSubmit = () => {
   console.log("submitou");
 };
 
-const value = 42.98
+const value = -42222.98
 
 const Home: NextPage = () => {
   const [bool, setBool] = useState(true);
 
   return (
-    <main className="min-w-screen min-h-screen md:grid md:grid-cols-3">
+    <main className="min-w-full min-h-full
+     md:grid md:grid-cols-3">
       <div className="h-full w-full py-4 md:py-0 flex flex-col items-center justify-center md:justify-start md:border-r border-zinc-300 dark:border-zinc-700">
-        <p className="text-teal-700 text-4xl font-bold uppercase md:my-14 my-4">
+        <p className="text-teal-700 text-4xl font-bold uppercase md:my-8 my-4">
           Monthly budget
         </p>
         <div className="w-full px-8 max-w-md">
@@ -68,28 +69,16 @@ const Home: NextPage = () => {
                 </div>
               </RadioGroup>
             </div>
-            <button className="w-full font-semibold text-xl px-4border-0 rounded-lg bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase mt-4 py-6 text-zinc-100">
+            <button className="w-full md:mt-8 font-semibold text-xl px-4border-0 rounded-lg bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase mt-4 py-6 text-zinc-100">
               register
             </button>
           </form>
         </div>
       </div>
-      <div className="col-span-2 flex flex-col">
-        <div className="flex justify-center md:justify-between px-8 pt-12 gap-2">
-          <div className="flex gap-2">
-            <span className="text-xl font-semibold">Current month:</span>
-            <span className="text-xl font-semibold text-orange-500">
-              07/2022
-            </span>
-          </div>
-          <div className={`flex gap-3 p-2 mr-3 rounded-xl items-end border ${value >= 0 ? "bg-teal-700" : "bg-orange-500" } `}>
-          <span className="text-xl font-semibold">Total:</span>
-          <strong>{value}</strong>
-          </div>
-        </div>
-        <div className="p-8 flex-1 bg-red">
+      <div className="col-span-2 flex flex-col">     
+        <div className="md:p-8 p-2 flex-1 bg-red">
           <div className="w-full shadow-xl border border-zinc-700 rounded-xl overflow-hidden">
-            <table className="w-full flex  flex-col table-auto min-h-[500px]">
+            <table className="w-full flex  flex-col table-auto h-1 min-h-[30rem]">
               <thead className=" bg-teal-700">
                 <tr className="flex">
                   <th className="text-start pl-2 min-w-[6rem] ">Date</th>
@@ -111,8 +100,14 @@ const Home: NextPage = () => {
                 </td>
                 </tr>
               </tbody>
-            </table>
+            </table>            
           </div>
+          <div className="flex justify-end items-center pt-3 gap-2">         
+          <div className={`flex min-w-[9rem]  h-auto gap-3 p-2 rounded-xl items-end justify-end border ${value >= 0 ? "bg-teal-700" : "bg-orange-500" } `}>
+          <span className="text-xl font-semibold">Total:</span>
+          <strong>{value}</strong>
+          </div>
+        </div>
         </div>
       </div>
     </main>
