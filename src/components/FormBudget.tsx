@@ -1,13 +1,7 @@
 import { RadioGroup } from "@headlessui/react";
 import { Controller, useForm } from "react-hook-form";
 
-interface Bugdet {
-  id: Number;
-  description: String;
-  value: Number;
-  date: Date;
-  isPositive: Boolean;
-}
+
 
 const FormBudget = () => {
   const { register, handleSubmit, control } = useForm();
