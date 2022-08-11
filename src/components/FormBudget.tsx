@@ -1,18 +1,52 @@
 import { RadioGroup } from "@headlessui/react";
-import { Controller, useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { Controller, FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { useFetch } from "../hooks/useFetch";
+import api from "../libs/axios";
+import { queryClient } from "../libs/reactQuery";
 
 
 
 const FormBudget = () => {
   const { register, handleSubmit, control } = useForm();
+  const {useCreate} = useFetch()
+  const {createAsync, createLoading} = useCreate(['budgetList'], "entries")
 
-  const onSubmit = (data: any) => console.log(data);
+
+  const {isLoading: updateLoading, mutateAsync: updateAsync } = useMutation((data: any) => { 
+      return api.patch(`entries?id=eq.${data.id}`, data)}, {
+        onSuccess: () => {queryClient.invalidateQueries(["budgetList"]);
+        },
+  
+      onError: (error: Error) => {
+        console.log(error.message)
+      }
+    },)
+
+
+const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    if (data.id) {
+      await updateAsync(data)
+        .then(() => {
+          console.log("Grupo alterado com sucesso");
+        })
+        // .then(() => onCloseModal())
+        .catch((error: Error) =>console.log(error + "CATCH"));
+    } else {
+      await createAsync(data)
+        .then(() => {
+          console.log("Grupo cadastrado com sucesso");
+        })
+        // .then(() => onCloseModal())
+        .catch((error: Error) => console.log(error + "CATCH"));
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit((e) => onSubmit(e))} className="">
+    <form onSubmit={handleSubmit(onSubmit)} className="">
       <div className="form-control">
-        <label htmlFor="ID">ID:</label>
-        <input placeholder="ex: john doe" {...register("ID")} disabled />
+        <label htmlFor="id">ID:</label>
+        <input placeholder="ex: john doe" {...register("id")} disabled />
         <span></span>
       </div>
       <div className="form-control">
@@ -40,7 +74,7 @@ const FormBudget = () => {
       <div className="form-control">
         <Controller
           control={control}
-          name="type"
+          name="isPositive"
           render={({ field: { onChange, value } }) => (
             <RadioGroup
               className="w-full"
@@ -75,7 +109,7 @@ const FormBudget = () => {
         />
       </div>
       <button className="w-full md:mt-8 font-semibold text-xl px-4border-0 rounded-lg bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase mt-4 py-6 text-zinc-100">
-        register
+        {createLoading ? "loading" : "register"}  
       </button>
     </form>
   );

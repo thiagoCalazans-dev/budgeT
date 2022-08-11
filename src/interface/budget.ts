@@ -1,9 +1,9 @@
 import { Key } from "react";
 
-export interface Bugdet {
+export interface Budget {
     id: Key | number;
     description: string;
-    value: string
-    date: string;
+    value: number
+    date: Date;
     isPositive: boolean;
   }

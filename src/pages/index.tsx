@@ -1,18 +1,40 @@
-import { RadioGroup } from "@headlessui/react";
+
+import { useMutation } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import { Pen, Trash } from "phosphor-react";
-import { useEffect, useState } from "react";
-import useSWR from "swr";
 import FormBudget from "../components/FormBudget";
-import { Bugdet } from "../interface/budget";
+import { useFetch } from "../hooks/useFetch";
+import { Budget } from "../interface/budget";
 import api from "../libs/axios";
 import fetcher from "../libs/axios";
+import { queryClient } from "../libs/reactQuery";
 
 const Home: NextPage = () => {
-  const fetcher = async (url: string) =>
-    await api.get(url).then((res) => res.data);
 
-  const { data: budgetList, error } = useSWR<Bugdet[]>("entries", fetcher);
+const {useGet} = useFetch<Budget[]>()
+
+
+  const {isLoading: removeLoading, mutateAsync: removeAsync } = useMutation((data: any) => { 
+    return api.delete(`entries?id=eq.${data.id}`, data)}, {
+      onSuccess: () => {queryClient.invalidateQueries(["budgetList"]);
+      },
+
+    onError: (error: Error) => {
+      console.log(error.message)
+    }
+  },)
+  
+const {data: budgetList} = useGet<Budget[]>(["budgetList"], "entries","?order=date")
+
+const HandleDeleteClick = async (data: Budget) => {
+  await removeAsync(data)
+    .then(() => {
+      console.log("Grupo removido com sucesso");
+    })
+    // .then(() => onCloseModal())
+    .catch((error: Error) => console.log(error + "CATCH"));
+};
+
 
   const filteredRevenueBudgetList = budgetList?.filter(
     (item) => item.isPositive === true
@@ -22,22 +44,18 @@ const Home: NextPage = () => {
   );
 
   const TotalRevenue = filteredRevenueBudgetList
-    ?.map((item) =>
-      Number(item.value.replace("$", "").replace(",", ""))
-    )
+    ?.map((item) => item.value)
     .reduce(function (item, i) {
       return item + i;
     });
 
   const TotalExchange = filteredExchangeBudgetList
-  ?.map((item) =>
-  Number(item.value.replace("$", "").replace(",", ""))
-)
-.reduce(function (item, i) {
-  return item + i;
-});
+    ?.map((item) => item.value)
+    .reduce(function (item, i) {
+      return item + i;
+    });
 
-  const balance = (TotalRevenue! - TotalExchange!)
+  const balance = TotalRevenue! - TotalExchange!;
 
   return (
     <main
@@ -69,7 +87,7 @@ const Home: NextPage = () => {
               <tbody className="">
                 {budgetList?.map((entry) => (
                   <tr key={entry.id} className="flex items-center">
-                    <td className="text-start pl-2 ">{entry.date}</td>
+                    <td className="text-start pl-2 ">{String(entry.date)}</td>
                     <td className="text-start pl-2 flex-1">
                       {entry.description}
                     </td>
@@ -84,7 +102,8 @@ const Home: NextPage = () => {
                       <button className="flex justify-center py-1 m-1 w-full font-semibold text-xl rounded-full bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase text-zinc-100">
                         <Pen />
                       </button>
-                      <button className="flex justify-center py-1 m-1 w-full font-semibold text-xl rounded-full bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase text-zinc-100">
+                      <button className="flex justify-center py-1 m-1 w-full font-semibold text-xl rounded-full bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase text-zinc-100"
+                      onClick={() => HandleDeleteClick(entry)}>
                         <Trash />
                       </button>
                     </td>
@@ -94,24 +113,9 @@ const Home: NextPage = () => {
             </table>
           </div>
           <div className="flex justify-between items-center pt-3 gap-2">
-            <div
-              className={`flex min-w-[9rem] w-full  h-auto gap-3 p-2 rounded-xl items-end justify-center border bg-teal-700`}
-            >
-              <span className="text-xl font-semibold">Revenue:</span>
-              <strong>{TotalRevenue}</strong>
-            </div>
-            <div
-              className={`flex min-w-[9rem] w-full  h-auto gap-3 p-2 rounded-xl items-end justify-center border bg-red-500`}
-            >
-              <span className="text-xl font-semibold">Exchange:</span>
-              <strong>{TotalExchange}</strong>
-            </div>
-            <div
-              className={`flex min-w-[9rem] w-full h-auto gap-3 p-2 rounded-xl items-end justify-center border bg-orange-500}`}
-            >
-              <span className="text-xl font-semibold overflow-hidden">Balance:</span>
-              <strong>{balance}</strong>
-            </div>
+            <span className="min-w-[9rem] h-auto  p-2 text-xl border rounded-xl flex-1 bg-teal-700 font-semibold text-center border-zinc-700">{`Revenue: ${TotalRevenue}`}</span>
+            <span className="min-w-[9rem] h-auto  p-2 text-xl border rounded-xl flex-1 bg-red-500 font-semibold text-center border-zinc-700">{`Exchange: ${TotalExchange}`}</span>
+            <span className="min-w-[9rem] h-auto  p-2 text-xl border rounded-xl flex-1 font-semibold text-center border-orange-500">{`Balance: ${balance}`}</span>
           </div>
         </div>
       </div>
