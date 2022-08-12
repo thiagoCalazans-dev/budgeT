@@ -1,21 +1,44 @@
 import { RadioGroup } from "@headlessui/react";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { ParsedUrlQuery } from "querystring";
+import {  useEffect } from "react";
 import { Controller, FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useFetch } from "../hooks/useFetch";
+import { Budget } from "../interface/budget";
 import api from "../libs/axios";
 import { queryClient } from "../libs/reactQuery";
+import { lastday } from "../services/dateFunctions";
 
 
+interface props {
+  selectedData:  Budget
+}
 
-const FormBudget = () => {
-  const { register, handleSubmit, control } = useForm();
+const FormBudget = ({selectedData}: props) => { 
+
+  const { register, handleSubmit, control, setValue, reset } = useForm();
   const {useCreate} = useFetch()
   const {createAsync, createLoading} = useCreate(['budgetList'], "entries")
+ 
+   const selectedInputChanges = () => {
+    setValue("id", selectedData.id)
+    setValue("description", selectedData.description)
+    setValue("date", selectedData.date)
+    setValue("isPositive", selectedData.isPositive)
+    setValue("value", selectedData.value)
+    console.log(selectedData)
+   }
+useEffect(() => {   
+  selectedInputChanges()    
+  }, [selectedData])
 
 
-  const {isLoading: updateLoading, mutateAsync: updateAsync } = useMutation((data: any) => { 
+const {mutateAsync: updateAsync, isLoading: updateLoading} = useMutation((data: any) => { 
       return api.patch(`entries?id=eq.${data.id}`, data)}, {
-        onSuccess: () => {queryClient.invalidateQueries(["budgetList"]);
+        onSuccess: () => {
+        queryClient.invalidateQueries(["budgetList"]);
+        reset()
         },
   
       onError: (error: Error) => {
@@ -28,16 +51,14 @@ const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     if (data.id) {
       await updateAsync(data)
         .then(() => {
-          console.log("Grupo alterado com sucesso");
-        })
-        // .then(() => onCloseModal())
+          console.log("update success");
+        })      
         .catch((error: Error) =>console.log(error + "CATCH"));
     } else {
       await createAsync(data)
         .then(() => {
-          console.log("Grupo cadastrado com sucesso");
-        })
-        // .then(() => onCloseModal())
+          console.log("insert success");
+        })    
         .catch((error: Error) => console.log(error + "CATCH"));
     }
   };
@@ -63,9 +84,7 @@ const onSubmit: SubmitHandler<FieldValues> = async (data) => {
         <label htmlFor="date">Date:</label>
         <input
           id="date"
-          type="date"
-          min={`2022-07-01`}
-          max={`2022-07-31`}
+          type="date"        
           placeholder="ex: john doe"
           {...register("date")}
         />
@@ -109,8 +128,8 @@ const onSubmit: SubmitHandler<FieldValues> = async (data) => {
         />
       </div>
       <button className="w-full md:mt-8 font-semibold text-xl px-4border-0 rounded-lg bg-teal-700 disabled:opacity-50 focus:outline-none focus:ring-1 focus:ring-zinc-800 dark:focus:ring-zinc-200  hover:ring-1 hover:ring-zinc-800 dark:hover:ring-zinc-200 hover:opacity-70 hover:transition-all tracking-wide uppercase mt-4 py-6 text-zinc-100">
-        {createLoading ? "loading" : "register"}  
-      </button>
+        {createLoading || updateLoading? "loading" : "register"}  
+      </button>     
     </form>
   );
 };
